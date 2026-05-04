@@ -458,8 +458,8 @@ Built as an assignment project demonstrating full-stack web development skills.
 
 ---
 
-**Live Demo:** [Your Railway URL]
+**Live Demo:** https://assignment-team-task-manager-full-s.vercel.app/
 
-**GitHub Repository:** [Your GitHub URL]
+**GitHub Repository:** https://github.com/supreetgupta93/Assignment-Team-Task-Manager-Full-Stack-
 
 For questions or issues, please open a GitHub issue.
