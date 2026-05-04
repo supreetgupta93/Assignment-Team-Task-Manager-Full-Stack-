@@ -10,6 +10,11 @@ dotenv.config(); // ✅ Correct for Railway
 const app = express();
 
 // ===============================
+// TRUST PROXY (for Render/Railway)
+// ===============================
+app.set('trust proxy', 1);
+
+// ===============================
 // SECURITY MIDDLEWARE
 // ===============================
 app.use(helmet());
