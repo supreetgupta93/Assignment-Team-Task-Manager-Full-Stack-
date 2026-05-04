@@ -14,7 +14,7 @@ router.post('/signup', validateSignup, async (req, res) => {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'Email already registered' });
 
-    user = new User({ name: name.trim(), email: email.toLowerCase(), password, role: 'Member' });
+    user = new User({ name: name.trim(), email: email.toLowerCase(), password, role: role || 'Member' });
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
     await user.save();

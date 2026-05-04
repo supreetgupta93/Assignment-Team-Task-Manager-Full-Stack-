@@ -7,6 +7,7 @@ const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Member');
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -23,6 +24,9 @@ const Signup = () => {
     if (password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
+    if (!['Admin', 'Member'].includes(role)) {
+      newErrors.role = 'Invalid role selected';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -33,7 +37,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      await axios.post('/api/auth/signup', { name, email, password });
+      await axios.post('/api/auth/signup', { name, email, password, role });
       setToast({ message: 'Signup successful! Redirecting to login...', type: 'success' });
       setTimeout(() => navigate('/login'), 500);
     } catch (err) {
@@ -91,7 +95,18 @@ const Signup = () => {
             />
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
           </div>
-          <p className="text-xs text-gray-500 mb-4">Note: All new users are assigned the Member role. Contact an Admin for Admin privileges.</p>
+          <div className="mb-4">
+            <label className="block text-gray-700 font-semibold mb-2">Role</label>
+            <select
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              disabled={loading}
+            >
+              <option value="Member">Member</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
           <button 
             type="submit" 
             disabled={loading}

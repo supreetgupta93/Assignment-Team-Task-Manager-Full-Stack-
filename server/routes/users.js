@@ -4,9 +4,12 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// Get all users (for assignment)
+// Get all users (ADMIN ONLY)
 router.get('/', auth, async (req, res) => {
   try {
+    if (req.user.role !== 'Admin') {
+      return res.status(403).json({ msg: 'Only admins can view all users' });
+    }
     const users = await User.find().select('-password');
     res.json(users);
   } catch (err) {
