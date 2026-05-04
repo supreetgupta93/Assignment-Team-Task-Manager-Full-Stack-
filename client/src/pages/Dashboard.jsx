@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
+import api from '../services/api';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
@@ -7,8 +7,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('/api/tasks', { headers: { Authorization: token } });
+      const res = await api.get('/tasks');
       setTasks(res.data);
       // Filter overdue
       const now = new Date();

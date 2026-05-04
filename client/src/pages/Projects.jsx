@@ -1,6 +1,6 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import Toast from '../components/Toast';
+import api from '../services/api';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -14,10 +14,9 @@ const Projects = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
         const [meRes, projectsRes] = await Promise.all([
-          axios.get('/api/auth/me', { headers: { Authorization: token } }),
-          axios.get('/api/projects', { headers: { Authorization: token } })
+          api.get('/auth/me'),
+          api.get('/projects')
         ]);
         setCurrentUser(meRes.data);
         setProjects(projectsRes.data);
@@ -46,12 +45,11 @@ const Projects = () => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/projects', { name, description }, { headers: { Authorization: token } });
+      await api.post('/projects', { name, description });
       setToast({ message: 'Project created successfully!', type: 'success' });
       setName('');
       setDescription('');
-      const res = await axios.get('/api/projects', { headers: { Authorization: token } });
+      const res = await api.get('/projects');
       setProjects(res.data);
     } catch (err) {
       const msg = err.response?.data?.msg || 'Error creating project';
@@ -65,8 +63,7 @@ const Projects = () => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/api/projects/${projectId}`, { headers: { Authorization: token } });
+      await api.delete(`/projects/${projectId}`);
       setToast({ message: 'Project deleted successfully!', type: 'success' });
       setProjects(projects.filter(p => p._id !== projectId));
     } catch (err) {

@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Toast from '../components/Toast';
+import api from '../services/api';
 
 const Tasks = () => {
   const navigate = useNavigate();
@@ -28,10 +28,10 @@ const Tasks = () => {
     const fetchData = async () => {
       try {
         const [meRes, tasksRes, projectsRes, usersRes] = await Promise.all([
-          axios.get('/api/auth/me', { headers: { Authorization: token } }),
-          axios.get('/api/tasks', { headers: { Authorization: token } }),
-          axios.get('/api/projects', { headers: { Authorization: token } }),
-          axios.get('/api/users', { headers: { Authorization: token } })
+          api.get('/auth/me'),
+          api.get('/tasks'),
+          api.get('/projects'),
+          api.get('/users')
         ]);
         setCurrentUser(meRes.data);
         setTasks(tasksRes.data);
@@ -63,9 +63,8 @@ const Tasks = () => {
     if (!validateForm()) return;
 
     setSubmitting(true);
-    const token = localStorage.getItem('token');
     try {
-      await axios.post('/api/tasks', { title, description, dueDate, projectId, assignedTo }, { headers: { Authorization: token } });
+      await api.post('/tasks', { title, description, dueDate, projectId, assignedTo });
       setToast({ message: 'Task created successfully!', type: 'success' });
       setTitle('');
       setDescription('');
@@ -73,7 +72,7 @@ const Tasks = () => {
       setProjectId('');
       setAssignedTo('');
       setErrors({});
-      const res = await axios.get('/api/tasks', { headers: { Authorization: token } });
+      const res = await api.get('/tasks');
       setTasks(res.data);
     } catch (err) {
       const msg = err.response?.data?.msg || 'Error creating task';
@@ -84,11 +83,10 @@ const Tasks = () => {
   };
 
   const updateStatus = async (id, status) => {
-    const token = localStorage.getItem('token');
     try {
-      await axios.put(`/api/tasks/${id}`, { status }, { headers: { Authorization: token } });
+      await api.put(`/tasks/${id}`, { status });
       setToast({ message: 'Task status updated!', type: 'success' });
-      const res = await axios.get('/api/tasks', { headers: { Authorization: token } });
+      const res = await api.get('/tasks');
       setTasks(res.data);
     } catch (err) {
       const msg = err.response?.data?.msg || 'Error updating task';
@@ -99,9 +97,8 @@ const Tasks = () => {
   const handleDelete = async (taskId) => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
 
-    const token = localStorage.getItem('token');
     try {
-      await axios.delete(`/api/tasks/${taskId}`, { headers: { Authorization: token } });
+      await api.delete(`/tasks/${taskId}`);
       setToast({ message: 'Task deleted successfully!', type: 'success' });
       setTasks(tasks.filter(t => t._id !== taskId));
     } catch (err) {

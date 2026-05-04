@@ -1,7 +1,7 @@
-import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Toast from '../components/Toast';
+import api from '../services/api';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -37,7 +37,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      await axios.post('/api/auth/signup', { name, email, password, role });
+      const res = await api.post('/auth/signup', { name, email, password, role });
       setToast({ message: 'Signup successful! Redirecting to login...', type: 'success' });
       setTimeout(() => navigate('/login'), 500);
     } catch (err) {
