@@ -42,6 +42,7 @@ router.post('/', auth, validateTaskCreate, async (req, res) => {
       createdBy: req.user.id 
     });
     await task.save();
+    await task.populate('projectId assignedTo createdBy', 'name title email');
     res.status(201).json(task);
   } catch (err) {
     console.error(err);
