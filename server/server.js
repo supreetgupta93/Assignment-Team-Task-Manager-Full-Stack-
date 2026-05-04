@@ -4,8 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config(); // ✅ Correct for Railway
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
@@ -47,6 +48,10 @@ app.get("/", (req, res) => {
 // ===============================
 // DATABASE CONNECTION
 // ===============================
+if (!process.env.MONGO_URI) {
+  throw new Error('MONGO_URI is not defined. Make sure the root .env file exists and contains MONGO_URI.');
+}
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.log("MongoDB connection error:", err));
