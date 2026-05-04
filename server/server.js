@@ -5,29 +5,50 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 
-dotenv.config({ path: '../.env' });
+dotenv.config(); // ✅ Correct for Railway
 
 const app = express();
 
-// Security middleware
+// ===============================
+// SECURITY MIDDLEWARE
+// ===============================
 app.use(helmet());
-app.use(cors());
 
-// Rate limiting for auth endpoints
+app.use(cors({
+  origin: "*", // You can restrict later to frontend URL
+}));
+
+app.use(express.json());
+
+// ===============================
+// RATE LIMITING (AUTH ROUTES)
+// ===============================
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per 15 minutes
+  max: 5,
   message: 'Too many login attempts, please try again later'
 });
 
-app.use(express.json());
 app.use('/api/auth/login', authLimiter);
 app.use('/api/auth/signup', authLimiter);
 
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.log('MongoDB connection error:', err));
+// ===============================
+// ROOT ROUTE (IMPORTANT)
+// ===============================
+app.get("/", (req, res) => {
+  res.send("Team Task Manager API is running 🚀");
+});
 
+// ===============================
+// DATABASE CONNECTION
+// ===============================
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.log("MongoDB connection error:", err));
+
+// ===============================
+// ROUTES
+// ===============================
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const taskRoutes = require('./routes/tasks');
@@ -38,12 +59,21 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/users', userRoutes);
 
-const PORT = process.env.PORT || 5001;
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ===============================
+// SERVER START
+// ===============================
+const PORT = process.env.PORT || 5000;
 
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// ===============================
+// ERROR HANDLING
+// ===============================
 server.on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the process using that port or set PORT in .env to a free port.`);
+    console.error(`Port ${PORT} is already in use.`);
     process.exit(1);
   }
   throw err;
