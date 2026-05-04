@@ -27,20 +27,33 @@ const Tasks = () => {
     }
     const fetchData = async () => {
       try {
-        const [meRes, tasksRes, projectsRes, usersRes] = await Promise.all([
+        const [meRes, tasksRes] = await Promise.all([
           api.get('/auth/me'),
-          api.get('/tasks'),
-          api.get('/projects'),
-          api.get('/users')
+          api.get('/tasks')
         ]);
+        
         setCurrentUser(meRes.data);
         setTasks(tasksRes.data);
-        setProjects(projectsRes.data);
-        setUsers(usersRes.data);
         setLoading(false);
+
+        // Only fetch projects and users if user is Admin
+        if (meRes.data.role === 'Admin') {
+          try {
+            const [projectsRes, usersRes] = await Promise.all([
+              api.get('/projects'),
+              api.get('/users')
+            ]);
+            setProjects(projectsRes.data);
+            setUsers(usersRes.data);
+          } catch (err) {
+            console.error('Error fetching admin data:', err);
+            setToast({ message: 'Error loading projects or users', type: 'error' });
+          }
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
-        setToast({ message: 'Error loading tasks', type: 'error' });
+        const errorMsg = error.response?.data?.msg || 'Error loading tasks';
+        setToast({ message: errorMsg, type: 'error' });
         setLoading(false);
       }
     };
